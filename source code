@@ -1,0 +1,238 @@
+@echo off
+title Simple Pokémon Game
+color 2
+setlocal EnableDelayedExpansion
+
+
+set playerHP=100
+set playerAtk=20
+set gold=100
+set playerName=Trainer
+set pokemonName=Charmander
+set pokemonHP=100
+set pokemonAtk=20
+
+goto mainmenu
+
+:mainmenu
+cls
+echo ==================
+echo  Simple Pokémon Game
+echo ==================
+echo 1) Start New Game
+echo 2) Load Game
+echo 3) Save Game
+echo 4) Shop
+echo 5) Credits
+echo 6) Exit
+choice /c 123456 /m "Choose an option:"
+if %errorlevel% equ 1 goto startnewgame
+if %errorlevel% equ 2 goto loadgame
+if %errorlevel% equ 3 goto savegame
+if %errorlevel% equ 4 goto shop
+if %errorlevel% equ 5 goto credits
+if %errorlevel% equ 6 exit
+
+:startnewgame
+cls
+echo What is your name, Trainer?
+set /p playerName=Name:
+echo Which Pokémon do you choose? (Charmander, Bulbasaur, Squirtle)
+set /p pokemonName=Pokémon:
+set gold=100
+if "%pokemonName%"=="Charmander" (
+    set pokemonHP=100
+    set pokemonAtk=20
+) else if "%pokemonName%"=="Bulbasaur" (
+    set pokemonHP=120
+    set pokemonAtk=15
+) else if "%pokemonName%"=="Squirtle" (
+    set pokemonHP=110
+    set pokemonAtk=18
+)
+goto continue
+
+:savegame
+cls
+echo Enter a name for your save file:
+set /p saveFileName=Save Name:
+(
+echo %playerName%
+echo %pokemonName%
+echo %playerHP%
+echo %playerAtk%
+echo %pokemonHP%
+echo %pokemonAtk%
+echo %gold%
+)>%saveFileName%.savefile
+echo Game saved!
+pause
+goto mainmenu
+
+:loadgame
+cls
+echo Enter the name of your save file:
+set /p loadFileName=Save File Name:
+if not exist "%loadFileName%.savefile" (
+    echo Save file does not exist!
+    pause
+    goto mainmenu
+)
+<%loadFileName%.savefile (
+    set /p playerName=
+    set /p pokemonName=
+    set /p playerHP=
+    set /p playerAtk=
+    set /p pokemonHP=
+    set /p pokemonAtk=
+    set /p gold=
+)
+echo Game loaded!
+pause
+goto continue
+
+:continue
+cls
+echo What would you like to do?
+echo 1) Explore
+echo 2) Check Pokémon
+echo 3) Save Game
+echo 4) Shop
+echo 5) Exit
+choice /c 12345 /m "Choose an option:"
+if %errorlevel% equ 1 goto explore
+if %errorlevel% equ 2 goto checkpokemon
+if %errorlevel% equ 3 goto savegame
+if %errorlevel% equ 4 goto shop
+if %errorlevel% equ 5 goto mainmenu
+
+:explore
+cls
+:: Randomize wild Pokémon's stats
+set /a wildHP=%random% %% 51 + 50
+set /a wildAtk=%random% %% 16 + 10
+echo You encountered a wild Pokémon!
+echo Wild Pokémon HP: %wildHP%
+echo Wild Pokémon Attack: %wildAtk%
+echo.
+echo 1) Attack
+echo 2) Run
+choice /c 12 /m "Choose an option:"
+if %errorlevel% equ 1 goto battle
+if %errorlevel% equ 2 goto run
+
+:battle
+cls
+echo You attack the wild Pokémon!
+set /a wildHP=wildHP-pokemonAtk
+if %wildHP% leq 0 goto victory
+echo Wild Pokémon HP: %wildHP%
+echo The wild Pokémon attacks you!
+set /a playerHP=playerHP-wildAtk
+if %playerHP% leq 0 goto defeat
+echo Your HP: %playerHP%
+pause
+goto battle
+
+:victory
+cls
+echo You defeated the wild Pokémon!
+echo You earned 20 gold!
+set /a gold=gold+20
+pause
+goto continue
+
+:defeat
+cls
+echo You were defeated by the wild Pokémon...
+set playerHP=100
+pause
+goto mainmenu
+
+:run
+cls
+echo You ran away safely!
+pause
+goto continue
+
+:checkpokemon
+cls
+echo Trainer: %playerName%
+echo Pokémon: %pokemonName%
+echo Pokémon HP: %pokemonHP%
+echo Pokémon Attack: %pokemonAtk%
+echo Gold: %gold%
+pause
+goto continue
+
+:shop
+cls
+echo ==================
+echo       SHOP
+echo ==================
+echo You have %gold% gold.
+echo 1) Buy Bulbasaur (50 gold)
+echo 2) Buy Squirtle (50 gold)
+echo 3) Buy Pikachu (75 gold)
+echo 4) Exit Shop
+choice /c 1234 /m "Choose an option:"
+if %errorlevel% equ 1 goto buybulbasaur
+if %errorlevel% equ 2 goto buysquirtle
+if %errorlevel% equ 3 goto buypikachu
+if %errorlevel% equ 4 goto continue
+
+:buybulbasaur
+if %gold% lss 50 (
+    echo Not enough gold!
+    pause
+    goto shop
+)
+set /a gold=gold-50
+set pokemonName=Bulbasaur
+set pokemonHP=120
+set pokemonAtk=25
+echo You bought Bulbasaur!
+pause
+goto shop
+
+:buysquirtle
+if %gold% lss 50 (
+    echo Not enough gold!
+    pause
+    goto shop
+)
+set /a gold=gold-50
+set pokemonName=Squirtle
+set pokemonHP=110
+set pokemonAtk=23
+echo You bought Squirtle!
+pause
+goto shop
+
+:buypikachu
+if %gold% lss 75 (
+    echo Not enough gold!
+    pause
+    goto shop
+)
+set /a gold=gold-75
+set pokemonName=Pikachu
+set pokemonHP=100
+set pokemonAtk=30
+echo You bought Pikachu!
+pause
+goto shop
+
+:: if removed your skiddeing
+:credits
+cls
+echo ==================
+echo       CREDITS
+echo ==================
+echo Developed by: [no1/dds1234]
+echo Inspired by: Pokémon series by Game Freak
+echo Special Thanks: To kaleb for creating the idea in my head lol
+echo.
+echo Press any key to return to the main menu...
+pause
+goto mainmenu
